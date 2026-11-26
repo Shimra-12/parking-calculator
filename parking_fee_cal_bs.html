@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> Parking Fee Calculator </title>
+    
+    <!--bootstrap css-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-yEPZ7jP9S0QKiUQ0m3jjsO4ProIW7wvR9gXkI7JOGa2XVsw53Yke2bsdkBbjmmiX" crossorigin="anonymous">
+    
+    <!-- Flatpickr css for time and date -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  </head>
+
+  <body>
+    <div class="container-md py-5" style="max-width: 550px;">
+
+        <div class="card shadow">
+            <div class="card-body p-4">
+            <h1 class="h3 text-center mb-4"> Parking Fee Calculator </h1>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text" id="vehicleNoLabel"> Vehicle Number </span>
+                    <input type="text" id="vehicleNo" class="form-control" placeholder="Enter Your Vehicle Number Here" aria-describedby="vehicleNoLabel">
+                </div>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text" id="vehicleTypeLabel"> Vehicle Type </span>
+                    <select id="vehicleType" class="form-select" aria-describedby="vehicleTypeLabel">
+                    <option value="" selected> Select Your Vehicle Type </option>
+                    <option value="bike"> Bike </option>
+                    <option value="car"> Car </option>
+                    <option value="van"> Van </option>
+                    </select>
+                </div>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text"> Entry </span>
+                    <input type="text" id="entryTime" class="form-control" placeholder="Select entry date and time">
+                </div>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text"> Exit </span>
+                    <input type="text" id="exitTime" class="form-control" placeholder="Select exit date and time">
+                </div>
+
+                <div class="d-grid">
+                    <button type="button" class="btn btn-primary btn-lg" onclick="calculateFee()"> Calculate Parking Fee </button>
+                </div>
+
+                <div id="result" class="alert alert-success mt-4 mb-0" style="display: none;"></div>
+
+            </div>
+        </div>
+    </div>
+
+    
+    <script>
+        function calculateFee() {
+            let vehicleNo = document.getElementById("vehicleNo").value;
+            let vehicleType = document.getElementById("vehicleType").value;
+            let entryValue = document.getElementById("entryTime").value;
+            let exitValue = document.getElementById("exitTime").value;
+
+            if (vehicleNo === "" || vehicleType === "" || !entryValue || !exitValue) {
+                Swal.fire({ title: "Missing Details", text: "Please fill all fields", icon: "warning" });
+                return;
+            }
+
+            let entryTime = new Date(entryValue.replace(" ", "T"));
+            let exitTime = new Date(exitValue.replace(" ", "T"));
+            let difference = exitTime - entryTime;
+            if (difference <= 0) {
+               Swal.fire({
+                    title: "Invalid Time",
+                    text: "Exit time must be after entry time!",
+                    icon: "error"
+                });
+                return;
+            }
+
+            let hours = Math.ceil (difference / (1000 * 60 * 60));
+            let firstHour;
+            let additionalHour;
+            
+            if (vehicleType === "bike") {
+                firstHour = 50;
+                additionalHour = 30;
+            } else if (vehicleType === "car"){
+                firstHour = 100;
+                additionalHour = 50;
+            } else {
+                firstHour = 150;
+                additionalHour = 75;
+            }
+
+            let total;
+            if (hours <= 1) {
+                total = firstHour;
+            } else {
+                total = firstHour + (hours - 1) * additionalHour;
+            }
+
+            document.getElementById("result") . style . display = "block";
+            document.getElementById("result") . innerHTML = `
+
+            <h3> Parking Receipt </h3>
+            <p> <b> Vehicle Number: </b> ${vehicleNo} </p>
+            <p> <b> Vehicle Type: </b> ${vehicleType . toUpperCase()} </p>
+            <p> <b> Parking Duration: </b> ${hours} Hours </p>
+            <hr>
+            <p> <b> Total Amount: </b> ${total} </p>`;
+        }
+    </script>
+
+    <!--flatpicker js-->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        flatpickr("#entryTime", { enableTime: true, dateFormat: "Y-m-d H:i" });
+        flatpickr("#exitTime", { enableTime: true, dateFormat: "Y-m-d H:i" });
+    </script>
+
+    <!--sweetalert js-->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!--bootstrap js-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/js/bootstrap.bundle.min.js" integrity="sha384-WyOxWvTyr1QaMPfiPJSv76iReVthorl5uWlFtZPyK0IEB0hGzo9y5Bp9mYanr8Bu" crossorigin="anonymous"></script>
+  </body>
+</html>
